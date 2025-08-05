@@ -1,0 +1,109 @@
+/*
+ * EPW Insights
+ * Author: Ehsan Rostami (https://github.com/ehsan-rostami)
+ * Copyright (c) 2025 Ehsan Rostami
+ * Released under the MIT License.
+*/
+
+/* === Center Column === */
+.icon-group {
+    cursor: pointer;
+}
+.icon-bg {
+    fill: #ffffff;
+    stroke: #e0e5ec;
+    stroke-width: 1.5px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.icon-shape {
+    fill: #5c6ac4; 
+    transition: all 0.3s ease;
+}
+.icon-group:hover .icon-bg {
+    transform: scale(1.1);
+    stroke: #5c6ac4;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+}
+.icon-group:hover .icon-shape {
+    transform: scale(1.1) translate(-13.2, -13.2);
+    fill: #3b479a;
+}
+.connecting-line {
+    stroke: #ced4da;
+    stroke-width: 1.5px;
+    stroke-dasharray: 4, 4;
+}
+
+/* === Side Card === */
+.city-text {
+    font-size: 28px;
+    font-weight: 600;
+}
+.city-text.primary { fill: #007bff; }
+.city-text.secondary { fill: #fd7e14; }
+
+.country-text {
+    font-size: 16px;
+    font-weight: 400;
+    fill: #6c757d;
+    dominant-baseline: middle;
+}
+
+.data-text {
+    font-size: 18px;
+    font-weight: 500;
+    fill: #34495e;
+    dominant-baseline: middle;
+}
+.data-unit {
+    font-size: 14px;
+    font-weight: 400;
+    fill: #7f8c8d;
+}
+
+/* === Map === */
+.map-bg {
+    fill: #e9ecef;
+    rx: 8;
+}
+.map-country-path {
+    stroke-width: 1.5px;
+    stroke: #fff;
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.15));
+}
+.map-country-path.primary { fill: #a3c9f7; }
+.map-country-path.secondary { fill: #fcc9a5; }
+
+.map-marker-dot {
+    stroke: #fff;
+    stroke-width: 1.5px;
+}
+.map-marker-dot.primary { fill: #0056b3; }
+.map-marker-dot.secondary { fill: #c75e0a; }
+
+.map-marker-glow {
+    opacity: 0.5;
+    animation: pulse 1s infinite;
+    transform-origin: center;
+    transform-box: fill-box;
+}
+.map-marker-glow.primary { fill: #007bff; }
+.map-marker-glow.secondary { fill: #fd7e14; }
+
+@keyframes pulse {
+  0% { transform: scale(0.95); }
+  70% { transform: scale(1.5); opacity: 0; }
+  100% { transform: scale(0.95); opacity: 0; }
+}
+
+.map-error-text {
+    font-size: 14px;
+    fill: #6c757d;
+    font-weight: 500;
+}
+
+#compare-overview-sub-pane .chart-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}

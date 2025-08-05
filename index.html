@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+ * EPW Insights
+ * Author: Ehsan Rostami (https://github.com/ehsan-rostami)
+ * Copyright (c) 2025 Ehsan Rostami
+ * Released under the MIT License.
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPW Insights</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+    <!-- Third-party Libraries -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/compare-overview.css">
+</head>
+<body>
+
+    <header class="container-fluid bg-light p-3 mb-4 border-bottom">
+        <div class="container">
+            <h1 class="display-6">EPW Insights <span class="badge bg-primary align-middle" style="font-size: 0.3em;">v0.9.0</span></h1>
+            <p class="lead text-muted">Advanced Weather Data Visualization & Analysis</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="top-section" class="mb-4">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="p-4 bg-white rounded-3 shadow-sm file-input-panel">
+                        <h6 class="border-bottom pb-2 mb-3">Load Weather Data</h6>
+                        <div class="input-zones-container">
+                            <!-- Primary File Input -->
+                            <div class="drop-zone-wrapper">
+                                <div id="drop-zone" class="drop-zone-styling">
+                                    <div class="drop-zone-title">Primary EPW File</div>
+                                    <p class="drop-zone-text">Drag & Drop file here</p>
+                                    <p class="drop-zone-subtext">or click to select</p>
+                                </div>
+                                <input type="file" id="file-input-control" class="d-none" accept=".epw">
+                                <div class="file-status-container">
+                                    <div id="primary-file-status" class="file-status-indicator status-inactive"></div>
+                                </div>
+                            </div>
+                            <!-- Comparison File Input -->
+                            <div id="comparison-drop-zone-wrapper" class="drop-zone-wrapper inactive">
+                                <div id="drop-zone-compare" class="drop-zone-styling">
+                                    <div class="drop-zone-title">Comparison EPW File</div>
+                                    <p class="drop-zone-text">Drag & Drop file here</p>
+                                    <p class="drop-zone-subtext">or click to select</p>
+                                </div>
+                                <input type="file" id="file-input-compare" class="d-none" accept=".epw">
+                                <div class="file-status-container">
+                                    <div id="comparison-file-status" class="file-status-indicator status-inactive"></div>
+                                </div>
+                            </div>
+                        </div>
+                            <!-- Toggles Container -->
+                            <div class="d-flex justify-content-center align-items-center mt-3 toggle-controls-container" style="gap: 3rem;">
+                                <!-- Compare Toggle -->
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="compare-toggle-checkbox">
+                                    <label class="form-check-label" for="compare-toggle-checkbox">Compare with another file</label>
+                                </div>
+                                <!-- Load Example Toggle -->
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="load-example-toggle">
+                                    <label class="form-check-label" for="load-example-toggle">Load example (Tehran vs. London)</label>
+                                </div>
+                            </div>
+                        <div id="loading-indicator" class="mt-2" style="display: none;">
+                            <div class="spinner-border spinner-border-sm" role="status"></div>
+                            <span class="ms-2">Parsing weather data...</span>
+                        </div>
+                        <div id="error-alert" class="alert alert-danger mt-2" role="alert" style="display: none;"></div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div id="welcome-panel-container">
+                        <!-- Welcome Notes Panel -->
+                        <div id="notes-panel" class="notes-panel p-4 bg-white rounded-3 shadow-sm h-100">
+                            <h6>Welcome to EPW Insights!</h6>
+                            <ul>
+                                <li>Start by dragging and dropping a <strong>Primary EPW File</strong>.</li>
+                                <li>To compare, activate the <strong>"Compare"</strong> switch and provide a second file. The "Compare" tab will then be enabled.</li>
+                                <li>Use the <strong>tabs</strong> below to explore different aspects of the weather data through interactive charts and tables.</li>
+                                <li>Utilize the options in the <strong>left panel</strong> of each tab to customize the visualizations.</li>
+                                <li>To ensure a reliable analysis, always use the <strong>most recent</strong> and <strong>official</strong> EPW files available for your locations.</li>
+                                <li>You can download EPW files from <a href="https://climate.onebuilding.org" target="_blank" rel="noopener noreferrer">Climate.OneBuilding.Org</a> or <a href="https://www.ladybug.tools/epwmap/" target="_blank" rel="noopener noreferrer">EPW Map</a>.</li>
+                                <li>Location names are parsed automatically. For any corrections, use the <strong>"Customize Names"</strong> button that appears here after loading a file.</li>
+                            </ul>
+                            <button id="toggle-editor-btn" class="btn btn-primary btn-sm" style="display: none;">Customize Names</button>
+                        </div>
+
+                        <!-- Location Editor Panel -->
+                        <div id="location-editor-panel" class="p-4 bg-white rounded-3 shadow-sm h-100" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                                <h6 class="mb-0">Customize Location Names</h6>
+                                <button id="close-editor-btn" type="button" class="btn-close" aria-label="Close"></button>
+                            </div>
+                            <p class="location-editor-note">EPW Insights automatically identifies location details from your files. If the displayed city or station name is inaccurate, particularly for EPW files with non-standard naming (like a missing separator between city and station), you can correct it here.<br>These modifications are solely for presentation in charts and exports and do not change the actual EPW file content.</p>
+                            
+                            <div class="location-editor-grid">
+                                <!-- Headers -->
+                                <div></div>
+                                <div class="grid-header">Primary File</div>
+                                <div id="comparison-header" class="grid-header" style="display: none;">Comparison File</div>
+                                <label for="primary-city-input" class="form-label">City</label>
+                                <input type="text" id="primary-city-input" class="form-control form-control-sm" placeholder="City Name">
+                                <input type="text" id="comparison-city-input" class="form-control form-control-sm" placeholder="City Name" style="display: none;">
+                             
+                                <label for="primary-station-input" class="form-label">Station</label>
+                                <input type="text" id="primary-station-input" class="form-control form-control-sm" placeholder="e.g., Intl Airport">
+                                <input type="text" id="comparison-station-input" class="form-control form-control-sm" placeholder="e.g., Weather Center" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div id="visualization-container" class="visually-hidden">
+            <section id="location-summary-section" class="p-3 bg-white rounded-3 shadow-sm h-100 mb-4">
+                <div id="summary-content">
+                </div>
+                <div id="map-wrapper">
+                    <div id="map-container"></div>
+                </div>
+            </section>
+
+            <!-- Navigation Tabs -->
+            <ul class="nav nav-tabs" id="viz-tabs" role="tablist">
+                <li class="nav-item" role="presentation"><button class="nav-link active" id="air-temp-tab" data-bs-toggle="tab" data-bs-target="#air-temp-pane" type="button">Air Temperature</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" id="rel-humidity-tab" data-bs-toggle="tab" data-bs-target="#rel-humidity-pane" type="button">Relative Humidity</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" id="sky-cover-tab" data-bs-toggle="tab" data-bs-target="#sky-cover-pane" type="button">Sky Cover</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" id="wind-tab" data-bs-toggle="tab" data-bs-target="#wind-pane" type="button">Wind</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" id="solar-rad-tab" data-bs-toggle="tab" data-bs-target="#solar-rad-pane" type="button">Solar Radiation</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" id="sun-path-tab" data-bs-toggle="tab" data-bs-target="#sun-path-pane" type="button">Sun Path</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" id="psychro-chart-tab" data-bs-toggle="tab" data-bs-target="#psychro-chart-pane" type="button">Psychrometric Chart</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" id="data-tables-tab" data-bs-toggle="tab" data-bs-target="#data-tables-pane" type="button">Data Tables</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link disabled" id="compare-tab" data-bs-toggle="tab" data-bs-target="#compare-pane" type="button" tabindex="-1">Compare</button></li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content bg-white p-3 border border-top-0 rounded-bottom" id="viz-tabs-content">
+
+                <div class="tab-pane fade show active" id="air-temp-pane" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-3 left-panel">
+                            </div>
+                        <div class="col-lg-9 main-chart-area">
+                            <div id="temp-heatmap-chart" class="chart-container mb-5"></div>
+                            <div id="temp-boxplot-chart" class="chart-container mb-5"></div> <div id="temp-diurnal-chart" class="chart-container"></div> </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="rel-humidity-pane" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-3 left-panel">
+                        </div>
+                        <div class="col-lg-9 main-chart-area">
+                            <div id="rh-heatmap-chart" class="chart-container mb-5"></div>
+                            <div id="rh-boxplot-chart" class="chart-container mb-5"></div>
+                            <div id="rh-diurnal-chart" class="chart-container"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-pane fade" id="sky-cover-pane" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-3 left-panel">
+                            </div>
+                        <div class="col-lg-9 main-chart-area">
+                            <div id="sky-cover-bands-chart" class="chart-container mb-5"></div>
+                            <div id="sky-cover-bar-chart" class="chart-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="wind-pane" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-3 left-panel">
+                            </div>
+                        <div class="col-lg-9 main-chart-area">
+                            <div id="dynamic-wind-rose-chart" class="chart-container mb-5"></div>
+                            <div id="monthly-wind-roses-chart" class="chart-container mb-5"></div>
+                            <div id="avg-wind-speed-chart" class="chart-container"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-pane fade" id="solar-rad-pane" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-3 left-panel">
+                            </div>
+                        <div class="col-lg-9 main-chart-area">
+                            <div id="dni-heatmap-chart" class="chart-container mb-5"></div>
+                            <div id="radiation-multibar-chart" class="chart-container mb-5"></div>
+                            <div id="sun-hours-chart" class="chart-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="sun-path-pane" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-3 left-panel">
+                            </div>
+                        <div class="col-lg-9 main-chart-area">
+                            <div id="sun-path-chart" class="chart-container"></div>
+                        </div>
+                    </div>
+                </div>    
+
+                <div class="tab-pane fade" id="psychro-chart-pane" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-3 left-panel">
+                            </div>
+                        <div class="col-lg-9 main-chart-area">
+                            <div id="psychrometric-chart" class="chart-container"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-pane fade" id="data-tables-pane" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-3 left-panel">
+                            </div>
+                        <div class="col-lg-9 main-chart-area">
+                            <div id="monthly-summary-table" class="data-table-container"></div>
+                            <div id="daily-data-table" class="data-table-container"></div>
+                            <div id="hourly-data-table" class="data-table-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compare Tab Pane -->
+                <div class="tab-pane fade" id="compare-pane" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-3 left-panel">
+                        </div>
+                        <div class="col-lg-9 main-chart-area">
+                            <div id="compare-content-area"></div>
+                        </div>
+                    </div>
+                </div>              
+
+        </div>
+    </main>
+
+    <footer class="container-fluid bg-light py-3 mt-4 border-top">
+        <div class="container text-center text-muted">
+            <p class="mb-0 small">EPW Insights v0.9.0 | Copyright (c) 2025 Ehsan Rostami</p>
+            <p class="mb-0 small browser-note">
+            To ensure the best experience, please use the latest version of your preferred web browser.
+            </p>
+        <div class="social-links mt-2">
+            <span class="small text-muted me-2">Connect with me:</span>
+            <a href="https://github.com/ehsan-rostami" target="_blank" rel="noopener noreferrer" class="social-icon-link me-2">
+                <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.6.111.819-.259.819-.578 0-.288-.011-1.04-.017-2.04-3.338.724-4.042-1.61-4.042-1.61-.545-1.386-1.334-1.756-1.334-1.756-1.088-.745.083-.73.083-.73 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.49.998.108-.776.418-1.305.762-1.604-2.665-.304-5.467-1.334-5.467-5.931 0-1.31.465-2.381 1.236-3.22-.124-.304-.535-1.524.118-3.176 0 0 1.008-.322 3.301 1.231.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.553 3.297-1.231 3.297-1.231.653 1.653.242 2.872.118 3.176.77.839 1.233 1.911 1.233 3.22 0 4.609-2.807 5.624-5.479 5.923.43.372.823 1.102.823 2.222 0 1.605-.015 2.899-.015 3.286 0 .315.216.69.823.574C20.565 21.792 24 17.29 24 12c0-6.627-5.373-12-12-12z"/>
+                </svg>
+            </a>
+            <a href="https://linkedin.com/in/ehsanrostami9" target="_blank" rel="noopener noreferrer" class="social-icon-link me-2">
+                <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.73V1.73C24 .77 23.21 0 22.23 0zM7.17 20.46H3.68V9H7.17v11.46zM5.42 7.42c-1.29 0-2.34-1.05-2.34-2.34s1.05-2.34 2.34-2.34 2.34 1.05 2.34 2.34-1.05 2.34-2.34 2.34zM20.46 20.46h-3.49v-5.61c0-1.33-.48-2.24-1.67-2.24-1.28 0-2.04 1.02-2.04 2.24v5.61H9.77V9h3.49v1.54c.5-.94 1.74-2.29 4.19-2.29 3.06 0 5.31 2.01 5.31 6.32v5.9z"/>
+                </svg>
+            </a>
+            <a href="https://github.com/ehsan-rostami/epw-insights/issues" target="_blank" rel="noopener noreferrer" class="social-icon-link" title="Report an Issue">
+                <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.73V1.73C24 .77 23.21 0 22.23 0z"/>
+                    <text x="12" y="16" text-anchor="middle" font-family="Arial" font-size="10" font-weight="400" fill="white">BUG</text>
+                </svg>
+            </a>              
+        </div>
+        </div>
+    </footer>
+    
+    <!-- JS Libraries -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/suncalc@1.8.0/suncalc.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Application Scripts -->
+    <script src="js/epw-parser.js"></script>
+    <script src="js/location-formatter.js"></script> 
+    <script src="js/location-summary.js"></script>
+    <script src="js/map-display.js"></script>
+    <script src="js/svg-exporter.js"></script>
+    <script src="js/air-temperature-charts.js"></script>
+    <script src="js/relative-humidity-charts.js"></script>
+    <script src="js/sky-cover-charts.js"></script>
+    <script src="js/wind-charts.js"></script>
+    <script src="js/solar-radiation-charts.js"></script>
+    <script src="js/sun-path-chart.js"></script>
+    <script src="js/psychrometric-chart.js"></script>
+    <script src="js/data-tables.js"></script>
+    <script src="js/compare-charts.js"></script>
+    <script src="js/compare-air-temperature.js"></script>
+    <script src="js/compare-relative-humidity.js"></script>
+    <script src="js/compare-sky-cover.js"></script>
+    <script src="js/compare-wind.js"></script>    
+    <script src="js/compare-solar-radiation.js"></script>
+    <script src="js/compare-sun-path.js"></script>
+    <script src="js/compare-overview.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+</html>
