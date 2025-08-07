@@ -251,7 +251,7 @@ async function renderAllComponents() {
         footer.append('xhtml:div')
             .style('font-size', '14px').style('color', 'rgba(255, 255, 255, 0.75)')
             .style('text-align', 'center').style('line-height', '1.5')
-            .html(`This comparison is based on data from the EPW files for ${textA} and ${textB}. For a more accurate and reliable comparison, it is recommended to use the most recent EPW files released for each location.`);
+            .html(`This comparison is based on typical annual conditions from the EPW files for ${textA} and ${textB}. All average values are calculated for the entire year. For a more accurate and reliable comparison, it is recommended to use the most recent EPW files released for each location.`);
 
 
     } catch (error) {
