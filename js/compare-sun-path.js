@@ -32,6 +32,9 @@ function renderSunPathCompareControls(panelSelector, chartRefs) {
     const sunPathSlidersGroup = sunPathControls.append('div').attr('class', 'chart-controls-group');
     sunPathSlidersGroup.append('h6').text('Date & Time Selection').style('font-size', '0.9rem').style('font-weight', '600');
     const sunPathSlidersContainer = sunPathSlidersGroup.append('div').attr('class', 'sliders-container-left-panel');
+    sunPathSlidersGroup.append('p')
+    .attr('class', 'info-note')
+    .html('<strong>Note</strong>: The selected time is applied as the <strong>local time</strong> for each location, not as a simultaneous UTC moment.');
     const sunPathMonthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
     const createSunPathSlider = (parent, { label, id, min, max, value, step = 1, onInput }) => {
@@ -397,6 +400,9 @@ function renderSunPathComparison(selector, dataA, dataB, chartRefs) {
     const infoPanelDiv = mainContainer.append('div').attr('class', 'info-panel-container mt-3');
     const infoTableContainer = infoPanelDiv.append('div').attr('class', 'table-responsive');
     const infoTable = infoTableContainer.append('table').attr('class', 'table table-bordered table-sm mt-2 info-table');
+    infoPanelDiv.append('p')
+    .attr('class', 'info-note text-center small mt-2')
+    .html('<strong>Note</strong>: Solar radiation values (DNI, DHI, GHI) represent the total energy (Wh/m²) accumulated during the one-hour period preceding the indicated time.');
 
     const tableHeader = infoTable.append('thead').append('tr');
     tableHeader.append('th').text('Parameter');

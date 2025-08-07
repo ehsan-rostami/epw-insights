@@ -411,6 +411,11 @@ function renderSunPathDiagram(selector, epwData, chartRefs) {
         item.append('span').attr('class', 'value').attr('id', `info-${rowData.id}`).text('N/A');
     });
 
+    infoPanelContainer.append('p')
+    .attr('class', 'info-note text-center small mt-2')
+    .style('padding', '0 1rem')
+    .html('<strong>Note</strong>: Solar radiation values (DNI, DHI, GHI) represent the total energy (Wh/m²) accumulated during the one-hour period preceding the indicated time.');
+
     d3.select('#info-location').text(shortLocationSimple);
     d3.select('#info-time-zone').text(`GMT${location.timeZone > 0 ? '+' : ''}${location.timeZone}`);
     d3.select('#info-latitude').text(`${location.latitude.toFixed(2)}°`);
