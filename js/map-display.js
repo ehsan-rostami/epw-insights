@@ -63,4 +63,42 @@ function displayLocationOnMap(latitude, longitude, locationName) {
             map.invalidateSize();
         }
     }, 100);
+
+    setupMapResizeHandler();
+}
+
+function setupMapResizeHandler() {
+    let resizeTimeout;
+    
+    function handleMapResize() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            if (map) {
+                map.invalidateSize({
+                    animate: false,
+                    pan: false
+                });
+                
+                setTimeout(() => {
+                    if (map) {
+                        map.invalidateSize(true);
+                    }
+                }, 50);
+            }
+        }, 100);
+    }
+    
+    window.addEventListener('resize', handleMapResize);
+    
+    window.addEventListener('orientationchange', () => {
+        setTimeout(handleMapResize, 200);
+    });
+    
+    if (window.ResizeObserver) {
+        const mapContainer = document.getElementById('map-container');
+        if (mapContainer) {
+            const resizeObserver = new ResizeObserver(handleMapResize);
+            resizeObserver.observe(mapContainer);
+        }
+    }
 }
