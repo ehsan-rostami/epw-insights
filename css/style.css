@@ -644,6 +644,44 @@ h1, h2, h3, h4, h5, h6 {
     opacity: 1;
 }
 
+@media (max-width: 767px) {
+    #location-summary-section {
+        flex-direction: column !important;
+        gap: 1rem !important;
+    }
+    
+    #summary-content {
+        flex: none !important;
+        width: 100% !important;
+        margin-bottom: 0 !important;
+    }
+    
+    #map-wrapper {
+        flex: none !important;
+        width: 100% !important;
+        min-height: 250px !important;
+        height: 250px !important;
+    }
+    
+    #map-container {
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    #summary-content .summary-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.5rem !important;
+    }
+    
+    .summary-item {
+        padding: 0.5rem !important;
+    }
+    
+    .summary-item .value {
+        font-size: 1rem !important;
+    }
+}
+
 /* === Tab & Panel Layout === */
 .left-panel {
     background-color: #f8f9fa;
